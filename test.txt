@@ -1,0 +1,383 @@
+<?php  include('db_connect_db_new.php');
+
+        include('visitor_out.php');
+    
+		$user1 = $_SESSION["user"];
+		
+	if($_SESSION["loggedIn"] == 0)
+	 	header("location: index.php");
+
+   $tody = date("Y:m:d");
+	 $sql = "SELECT Name FROM info_visitor WHERE Date = '$tody'";
+  
+   $sqlOnline = "SELECT * FROM info_visitor WHERE Status = 'ONLINE' LIMIT 10";
+
+    $sqlRecent = "SELECT * FROM (SELECT * FROM info_visitor ORDER BY Serial DESC LIMIT 10) a ORDER BY Serial DESC";
+
+   $resultToday = mysqli_num_rows(mysqli_query($link,$sql));   //recent Visitors
+   $resultS = mysqli_query($link,$sqlOnline);       //Online Visitors
+  
+   $onlineVsitor = mysqli_num_rows($resultS);
+
+    $sqlResRecent = mysqli_query($link,$sqlRecent);
+
+    if (isset($_GET['delete_id'])) {
+      $deleteId = $_GET['delete_id'];
+      $deleteQuery = "DELETE FROM info_visitor WHERE ReceiptID = '$deleteId'";
+      mysqli_query($link, $deleteQuery);
+      header("Location: front.php");
+  }
+
+  // EDIT Visitor
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_visitor'])) {
+  $receiptId = $_POST['receipt_id'];
+  $name = $_POST['name'];
+  $contact = $_POST['contact'];
+  $purpose = $_POST['purpose'];
+  $meetingTo = $_POST['meetingTo'];
+  $comment = $_POST['comment'];
+
+  $updateQuery = "UPDATE info_visitor SET Name='$name', Contact='$contact', Purpose='$purpose', meetingTo='$meetingTo', Comment='$comment' WHERE ReceiptID='$receiptId'";
+  mysqli_query($link, $updateQuery);
+  header("Location: front.php");
+}
+
+
+?>
+
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Management - Add Visitor</title>
+    <link rel="stylesheet" href="BootStrap/css/bootstrap.min.css">
+    <script src="BootStrap/js/jQuery.min.js"></script>
+    <script src="BootStrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="myform.css">
+    <style>
+       
+    </style>
+</head>
+
+<body onload="display_ct();">
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+        <i class="fas fa-clipboard-list mr-2"></i> VISITOR MANAGEMENT
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="front.php">
+            <i class="fas fa-home"></i> Home
+          </a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="myform.php">
+            <i class="fas fa-user-plus"></i> Add Visitor
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="logoutform.php">
+            <i class="fas fa-sign-out-alt"></i> Checked Out Visitors
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="query_data.php">
+            <i class="fas fa-database"></i> View Data
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="logout.php">
+            <i class="fas fa-power-off"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="page-title">
+                <i class="fas fa-user-plus"></i> Add New Visitor
+            </h2>
+            
+            <?php if(isset($displayError)): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <?php echo $displayError; ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <?php endif; ?>
+            
+            <?php if($success == 1): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> Visitor added successfully! Redirecting...
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="time-date-display text-right">
+                <p id="timeDisplay"><i class="far fa-clock"></i> Time: <span id="t1"></span></p>
+                <p id="dateDisplay"><i class="far fa-calendar-alt"></i> Date: <span id="t2"></span></p>
+                <p><i class="fas fa-user"></i> Logged in as: <span><?php  ?></span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-clipboard"></i> Visitor Information
+                </div>
+                <div class="card-body">
+                    <form class="myForm" action="<?php echo $_SERVER["PHP_SELF"];?>" method="POST" id="form">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">
+                                        <i class="fas fa-user"></i> Visitor's Name
+                                    </label>
+                                    <input 
+                                        autocomplete="off" 
+                                        class="form-control" 
+                                        type="text" 
+                                        name="name" 
+                                        placeholder="Enter visitor's full name" 
+                                        required 
+                                        id="name"
+                                        oninvalid="this.setCustomValidity(this.willValidate?'':'Name is required')" 
+                                        onblur="isEmpty('name')" 
+                                        onfocus="onfo('name')"
+                                    />
+                                    <small class="form-text">Please enter the visitor's complete name</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ContactInfo" class="form-label">
+                                <i class="fas fa-phone"></i> Contact Number
+                            </label>
+                            <input 
+                                autocomplete="off" 
+                                class="form-control" 
+                                type="number" 
+                                id="ContactInfo" 
+                                onkeyup="Ccheck('ContactInfo')" 
+                                onblur="isEmpty('ContactInfo')" 
+                                onfocus="onfo('ContactInfo')" 
+                                name="cno" 
+                                placeholder="Enter 10-digit contact number" 
+                                required 
+                                min="1000000000" 
+                                max="9999999999" 
+                                oninvalid="this.setCustomValidity(this.willValidate?'':'Enter a valid 10-digit contact number')"
+                            />
+                            <small class="form-text">Must be a 10-digit number without country code</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Purpose" class="form-label">
+                                <i class="fas fa-tasks"></i> Purpose of Visit
+                            </label>
+                            <input 
+                                autocomplete="off" 
+                                class="form-control" 
+                                type="text" 
+                                name="purpose" 
+                                placeholder="Why are they visiting?" 
+                                required 
+                                id="Purpose" 
+                                oninvalid="this.setCustomValidity(this.willValidate?'':'Enter your Purpose')" 
+                                maxlength="30" 
+                                onblur="isEmpty('Purpose')"
+                            />
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="meetingTo" class="form-label">
+                                        <i class="fas fa-user-tie"></i> Meeting With
+                                    </label>
+                                    <input 
+                                        autocomplete="off" 
+                                        class="form-control" 
+                                        type="text" 
+                                        required 
+                                        name="MeetingTo" 
+                                        id="meetingTo" 
+                                        placeholder="Person to meet" 
+                                        oninvalid="this.setCustomValidity(this.willValidate?'':'Whom do you want to meet?')" 
+                                        maxlength="30"  
+                                        onblur="isEmpty('meetingTo')"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="comment" class="form-label">
+                                <i class="fas fa-comment"></i> Comments (Optional)
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="comment" 
+                                name="comment" 
+                                rows="3" 
+                                maxlength="30" 
+                                placeholder="Any additional information"
+                            ></textarea>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button 
+                                id="submitme" 
+                                type="submit" 
+                                name="submit_post" 
+                                class="btn btn-success btn-lg"
+                                onclick="return emptys()"
+                            >
+                                <i class="fas fa-save"></i> Register Visitor
+                            </button>
+                            
+                            <a href="front.php" class="btn btn-secondary ml-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            
+                            <input autocomplete="off" id="mydata" type="hidden" name="mydata">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i> Instructions
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Fill in all required information about the visitor
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Ensure the contact number is a valid 10-digit number
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Specify who the visitor is meeting with
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Add any additional comments if needed
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-exclamation-circle text-warning"></i>
+                            After registration, the visitor will receive a receipt ID
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time and date script -->
+<script type="text/javascript"> 
+function display_c() {
+    var refresh = 1000; // Refresh rate in milliseconds
+    mytime = setTimeout('display_ct()', refresh);
+}
+
+function display_ct() {
+    var date = new Date();
+    var hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+    var am_pm = date.getHours() >= 12 ? "PM" : "AM";
+    hours = hours < 10 ? "0" + hours : hours;
+    var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+    var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+    time = hours + ":" + minutes + ":" + seconds + " " + am_pm;
+    document.getElementById('t1').innerHTML = time;
+    
+    var x = new Date();
+    var x1 = x.getMonth() + 1 + "/" + x.getDate() + "/" + x.getFullYear();
+    document.getElementById('t2').innerHTML = x1;
+    display_c();
+}
+
+// Form validation functions (placeholders for the original functions)
+function isEmpty(id) {
+    var element = document.getElementById(id);
+    if (element.value.trim() === '') {
+        element.classList.add('is-invalid');
+        return true;
+    } else {
+        element.classList.remove('is-invalid');
+        element.classList.add('is-valid');
+        return false;
+    }
+}
+
+function onfo(id) {
+    var element = document.getElementById(id);
+    element.classList.remove('is-invalid');
+    element.classList.remove('is-valid');
+}
+
+function Ccheck(id) {
+    var element = document.getElementById(id);
+    if (element.value.length !== 10) {
+        element.classList.add('is-invalid');
+        document.getElementById('span').innerHTML = "Contact must be 10 digits";
+        document.getElementById('span').style.color = "red";
+        return false;
+    } else {
+        element.classList.remove('is-invalid');
+        element.classList.add('is-valid');
+        document.getElementById('span').innerHTML = "Valid contact number";
+        document.getElementById('span').style.color = "green";
+        return true;
+    }
+}
+
+function emptys() {
+    var name = document.getElementById("name").value;
+    var contact = document.getElementById("ContactInfo").value;
+    var purpose = document.getElementById("Purpose").value;
+    var meeting = document.getElementById("meetingTo").value;
+    
+    if (name === "" || contact === "" || purpose === "" || meeting === "") {
+        alert("Please fill all required fields");
+        return false;
+    }
+    
+    if (contact.length !== 10) {
+        alert("Contact number must be 10 digits");
+        return false;
+    }
+    
+    return true;
+}
+</script>
+
+</body>
+</html>
