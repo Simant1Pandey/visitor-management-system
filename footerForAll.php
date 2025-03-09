@@ -5,8 +5,7 @@
 
 	<div class = "footer">
 		
-	<span > 2016 © Graphic Era University 
-	</span>
+	
 
 
 	</div>

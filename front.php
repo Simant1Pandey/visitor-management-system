@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_visitor'])) {
         <div class="col-lg-3 col-md-12">
             <div class="card checkout-form">
                 <div class="card-header">
-                    <i class="fas fa-sign-out-alt"></i> Check Out Visitor
+                    <i class="fas fa-sign-out-alt"></i> Checked Out Visitor
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
@@ -163,6 +163,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_visitor'])) {
                     
                     if($resultDetails) { ?>
                         <div class="visitor-details">
+                        <div class="visitor-detail-row">
+                                <span class="detail-label"><i class="fas fa-user"></i> Name:</span> 
+                                <?php echo $resultDetails['Name']; ?>
+                            </div>
+                        <div class="visitor-detail-row">
+                                <span class="detail-label"><i class="fas fa-receipt"></i> Receipt ID:</span> 
+                                <?php echo $resultDetails['ReceiptID']; ?>
+                            </div>
                             <div class="visitor-detail-row">
                                 <span class="detail-label"><i class="far fa-calendar-alt"></i> Date:</span> 
                                 <?php echo $resultDetails['Date']; ?>
@@ -170,10 +178,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_visitor'])) {
                             <div class="visitor-detail-row">
                                 <span class="detail-label"><i class="far fa-clock"></i> Time in:</span> 
                                 <?php echo $resultDetails['TimeIN']; ?>
-                            </div>
-                            <div class="visitor-detail-row">
-                                <span class="detail-label"><i class="fas fa-user"></i> Name:</span> 
-                                <?php echo $resultDetails['Name']; ?>
                             </div>
                             <div class="visitor-detail-row">
                                 <span class="detail-label"><i class="fas fa-phone"></i> Contact:</span> 
@@ -187,10 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_visitor'])) {
                                 <span class="detail-label"><i class="fas fa-user-tie"></i> Meeting:</span> 
                                 <?php echo $resultDetails['meetingTo']; ?>
                             </div>
-                            <div class="visitor-detail-row">
-                                <span class="detail-label"><i class="fas fa-receipt"></i> Receipt ID:</span> 
-                                <?php echo $resultDetails['ReceiptID']; ?>
-                            </div>
+                            
                             <div class="visitor-detail-row">
                                 <span class="detail-label"><i class="fas fa-comment"></i> Comment:</span> 
                                 <?php echo $resultDetails['Comment']; ?>

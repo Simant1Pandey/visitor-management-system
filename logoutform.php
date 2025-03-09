@@ -258,7 +258,7 @@
     <div class="visitors-grid">
       <?php
         include('db_connect_db_new.php');
-        $date = date("Y/m/d");
+        $date = date("Y-m-d");
         $query = "SELECT * FROM info_visitor WHERE Date = '$date' AND Status = 'OFFLINE'";
         $res = mysqli_query($link, $query);
         $hasVisitors = false;
@@ -290,6 +290,10 @@
               <div class="visitor-info">
                 <span class="info-label">Meeting:</span>
                 <span class="info-value">'.$result['meetingTo'].'</span>
+              </div>
+               <div class="visitor-info">
+                <span class="info-label">Time Out:</span>
+                <span class="info-value">'.$result['TimeOUT'].'</span>
               </div>
             </div>
           </div>';

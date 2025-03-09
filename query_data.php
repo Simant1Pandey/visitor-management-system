@@ -200,7 +200,8 @@ $user2 = $_SESSION["user"];
                                         .$row['Contact'] ."</td><td>"
                                         .$row["Purpose"]."</td><td>"
                                         .$row["Date"]."</td><td>"
-                                        .$row["TimeIN"]."</td><td>".$row["TimeOUT"]. "</td><td>"
+                                        .$row["TimeIN"]."</td><td>"
+                                        .$row["TimeOUT"]. "</td><td>"
                                         .$row["Comment"]."</td><td>"
                                         .$row["Status"]."</td><td>"
                                         .$row["registeredBy"]."</td></tr>";  
@@ -216,6 +217,7 @@ $user2 = $_SESSION["user"];
                                         <p><i class="glyphicon glyphicon-time"></i> Time In: '.$result['TimeIN'].'</p>
                                         <p><i class="glyphicon glyphicon-calendar"></i> Date: '.$result['Date'].'</p>
                                         <p><i class="glyphicon glyphicon-user"></i> Meeting: '.$result['meetingTo'].'</p>
+                                        <p><i class="glyphicon glyphicon-user"></i> Time Out: '.$result['TimeOUT'].'</p>
                                     </div>
                                 </div>';
                         }

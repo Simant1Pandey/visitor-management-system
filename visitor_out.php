@@ -27,7 +27,7 @@ if($_SESSION["loggedIn"] == 0)
 			$rid = $_POST["rid"];
 	date_default_timezone_set("Asia/Kathmandu");
 			$time = date("H:i:s");
-			$date = date("d/m/Y");
+			$date = date("Y-m-d");
 
 	if(empty($rid))
 		echo "You have not entered the required fields Correctly !!";
